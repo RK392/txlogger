@@ -2,6 +2,7 @@
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 name: Build Windows Develop
 on:
+  workflow_dispatch:
   push:
     branches:
     - 'master'
@@ -67,7 +68,7 @@ jobs:
 
     - name: Build
       run: |
-        $env:PATH += ";D:\a\txlogger\txlogger\llvm-mingw\bin"
+        $env:PATH += ";$env:GITHUB_WORKSPACE\llvm-mingw\bin;D:\a\txlogger\txlogger\llvm-mingw\bin"
         .\build.ps1 -j2534proxy -txlogger -setup
 
     - name: Creating Zip
