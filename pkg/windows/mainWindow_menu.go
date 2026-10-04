@@ -1099,33 +1099,33 @@ type mainWindowFuelUpdater struct {
 	mw *MainWindow
 }
 
-func (u *mainWindowFuelUpdater) GetBFuelCal() ([]float64, []float64, []float64, error) {
+func (u *mainWindowFuelUpdater) GetFuelMap(symbolName string) ([]float64, []float64, []float64, error) {
 	if u.mw.fw == nil {
 		return nil, nil, nil, fmt.Errorf("no binary loaded")
 	}
-	symZ := u.mw.fw.GetByName("BFuelCal.Map")
+	symZ := u.mw.fw.GetByName(symbolName)
 	if symZ == nil {
-		return nil, nil, nil, fmt.Errorf("symbol BFuelCal.Map not found")
+		return nil, nil, nil, fmt.Errorf("symbol %s not found", symbolName)
 	}
 	symX := u.mw.fw.GetByName("BFuelCal.AirXSP")
 	symY := u.mw.fw.GetByName("BFuelCal.RpmYSP")
 	if symX == nil || symY == nil {
-		return nil, nil, nil, fmt.Errorf("axis symbols for BFuelCal.Map not found")
+		return nil, nil, nil, fmt.Errorf("axis symbols for %s not found", symbolName)
 	}
 	return symX.Float64s(), symY.Float64s(), symZ.Float64s(), nil
 }
 
-func (u *mainWindowFuelUpdater) GetClosedLoopRegion(xData, yData []float64) []bool {
-	return u.mw.closedLoopRegion(symbol.ECU_T7, "LambdaCal.MaxLoadNormTab", xData, yData)
+func (u *mainWindowFuelUpdater) GetClosedLoopRegion(regionSymbol string, xData, yData []float64) []bool {
+	return u.mw.closedLoopRegion(symbol.ECU_T7, regionSymbol, xData, yData)
 }
 
-func (u *mainWindowFuelUpdater) UpdateBFuelCal(zData []float64) error {
+func (u *mainWindowFuelUpdater) UpdateFuelMap(symbolName string, zData []float64) error {
 	if u.mw.fw == nil {
 		return fmt.Errorf("no binary loaded")
 	}
-	symZ := u.mw.fw.GetByName("BFuelCal.Map")
+	symZ := u.mw.fw.GetByName(symbolName)
 	if symZ == nil {
-		return fmt.Errorf("symbol BFuelCal.Map not found")
+		return fmt.Errorf("symbol %s not found", symbolName)
 	}
 	if err := symZ.SetData(symZ.EncodeFloat64s(zData)); err != nil {
 		return err
@@ -1140,7 +1140,7 @@ func (u *mainWindowFuelUpdater) UpdateBFuelCal(zData []float64) error {
 			return err
 		}
 	}
-	u.mw.Log("Updated and saved BFuelCal.Map")
+	u.mw.Log("Updated and saved " + symbolName)
 	return nil
 }
 

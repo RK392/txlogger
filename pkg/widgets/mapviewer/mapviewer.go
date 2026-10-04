@@ -371,6 +371,46 @@ func (mv *MapViewer) SetZData(zData []float64) error {
 	return nil
 }
 
+// SetZPrecision updates the decimal precision for displaying Z values.
+func (mv *MapViewer) SetZPrecision(p int) {
+	mv.cfg.ZPrecision = p
+}
+
+// SetRegionBorder updates the closed/open loop region border and redraws the overlay.
+func (mv *MapViewer) SetRegionBorder(border []bool) {
+	mv.cfg.RegionBorder = border
+	if len(border) != mv.numData || mv.numColumns <= 1 || mv.numRows <= 1 {
+		if mv.regionOverlay != nil {
+			mv.regionOverlay.Objects = nil
+			mv.regionOverlay.Refresh()
+		}
+		return
+	}
+	edges := mv.regionEdges()
+	borderCol := mv.cfg.RegionBorderColor
+	if borderCol.A == 0 {
+		borderCol = color.RGBA{0x70, 0x80, 0x90, 0xFF}
+	}
+	lines := make([]*canvas.Line, len(edges))
+	objs := make([]fyne.CanvasObject, len(edges))
+	for i := range edges {
+		ln := canvas.NewLine(borderCol)
+		ln.StrokeWidth = 4
+		lines[i] = ln
+		objs[i] = ln
+	}
+	if mv.regionOverlay == nil {
+		mv.regionOverlay = container.New(&regionBorderLayout{mv: mv, edges: edges, lines: lines}, objs...)
+		if mv.innerView != nil {
+			mv.innerView.Add(mv.regionOverlay)
+		}
+	} else {
+		mv.regionOverlay.Layout = &regionBorderLayout{mv: mv, edges: edges, lines: lines}
+		mv.regionOverlay.Objects = objs
+		mv.regionOverlay.Refresh()
+	}
+}
+
 func (mv *MapViewer) Refresh() {
 	mv.zMin, mv.zMax = common.FindMinMaxFloat64(mv.cfg.ZData)
 	if len(mv.textValues) == 0 {
