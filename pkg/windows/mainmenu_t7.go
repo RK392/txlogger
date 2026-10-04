@@ -67,6 +67,7 @@ func (mw *MainWindow) t7Menu() []MenuItem {
 				{Name: "TransCal.FilterConstAir"},
 			}},
 			{Name: "VE map", Data: "BFuelCal.Map", Region: "LambdaCal.MaxLoadNormTab"},
+			{Name: "Adjust BFuelCal from Matrix...", Func: func() { mw.openFuelAdjuster(nil) }},
 			{Name: "Startup / E85 VE map", Data: "BFuelCal.StartMap", Region: "LambdaCal.MaxLoadE85Tab"},
 			{Name: "Gas VE map", Data: "BFuelCal.GasMap"},
 			{Name: "Enrichment factor during starting", Data: "StartCal.EnrFacTab"},

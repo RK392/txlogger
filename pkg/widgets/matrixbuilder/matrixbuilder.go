@@ -22,6 +22,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	xlayout "fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -122,7 +123,19 @@ type MatrixBuilder struct {
 	// refreshControls).
 	controls *fyne.Container
 
+	// fuelUpdater and callback for adjusting BFuelCal.Map
+	fuelUpdater     FuelUpdater
+	OnUpdateFuelMap func(mb *MatrixBuilder)
+
 	content fyne.CanvasObject
+}
+
+func (mb *MatrixBuilder) SetFuelUpdater(u FuelUpdater) {
+	mb.fuelUpdater = u
+}
+
+func (mb *MatrixBuilder) SetOnUpdateFuelMap(fn func(*MatrixBuilder)) {
+	mb.OnUpdateFuelMap = fn
 }
 
 // filterChild is one editable node in the visual filter tree: either a group or
@@ -379,9 +392,35 @@ func (mb *MatrixBuilder) buildUI() {
 	// Set the field directly rather than SetSelected: the latter fires OnChanged,
 	// which calls rebuildDisplay before mb.display exists (panic during buildUI).
 	mb.viewSelect.Selected = viewMatrix
+
+	updateFuelBtn := widget.NewButtonWithIcon("Update BFuelCal.Map", theme.DocumentCreateIcon(), func() {
+		if !mb.built {
+			if err := mb.analyze(); err != nil {
+				mb.status.SetText(err.Error())
+				return
+			}
+			mb.rebuildDisplay()
+		}
+		if mb.OnUpdateFuelMap != nil {
+			mb.OnUpdateFuelMap(mb)
+			return
+		}
+		if app := fyne.CurrentApp(); app != nil {
+			if drv := app.Driver(); drv != nil {
+				wins := drv.AllWindows()
+				if len(wins) > 0 {
+					fa := NewFuelAdjusterWidget(mb, mb.fuelUpdater)
+					d := dialog.NewCustom("Update BFuelCal.Map", "Close", fa, wins[0])
+					d.Resize(fyne.NewSize(950, 700))
+					d.Show()
+				}
+			}
+		}
+	})
+
 	bottomBar := container.NewBorder(nil, nil, nil,
 		container.NewHBox(widget.NewLabel("View"), mb.viewSelect),
-		buildBtn,
+		container.NewHBox(buildBtn, updateFuelBtn),
 	)
 
 	mb.xBox = container.NewHBox()

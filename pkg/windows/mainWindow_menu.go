@@ -1095,6 +1095,59 @@ func fileExists(path string) bool {
 	return err == nil
 }
 
+type mainWindowFuelUpdater struct {
+	mw *MainWindow
+}
+
+func (u *mainWindowFuelUpdater) GetBFuelCal() ([]float64, []float64, []float64, error) {
+	if u.mw.fw == nil {
+		return nil, nil, nil, fmt.Errorf("no binary loaded")
+	}
+	symZ := u.mw.fw.GetByName("BFuelCal.Map")
+	if symZ == nil {
+		return nil, nil, nil, fmt.Errorf("symbol BFuelCal.Map not found")
+	}
+	symX := u.mw.fw.GetByName("BFuelCal.AirXSP")
+	symY := u.mw.fw.GetByName("BFuelCal.RpmYSP")
+	if symX == nil || symY == nil {
+		return nil, nil, nil, fmt.Errorf("axis symbols for BFuelCal.Map not found")
+	}
+	return symX.Float64s(), symY.Float64s(), symZ.Float64s(), nil
+}
+
+func (u *mainWindowFuelUpdater) GetClosedLoopRegion(xData, yData []float64) []bool {
+	return u.mw.closedLoopRegion(symbol.ECU_T7, "LambdaCal.MaxLoadNormTab", xData, yData)
+}
+
+func (u *mainWindowFuelUpdater) UpdateBFuelCal(zData []float64) error {
+	if u.mw.fw == nil {
+		return fmt.Errorf("no binary loaded")
+	}
+	symZ := u.mw.fw.GetByName("BFuelCal.Map")
+	if symZ == nil {
+		return fmt.Errorf("symbol BFuelCal.Map not found")
+	}
+	if err := symZ.SetData(symZ.EncodeFloat64s(zData)); err != nil {
+		return err
+	}
+	if u.mw.filename != "" {
+		if bak := u.mw.filename + ".bak"; !fileExists(bak) {
+			if orig, err := os.ReadFile(u.mw.filename); err == nil {
+				_ = os.WriteFile(bak, orig, 0o644)
+			}
+		}
+		if err := u.mw.fw.Save(u.mw.filename); err != nil {
+			return err
+		}
+	}
+	u.mw.Log("Updated and saved BFuelCal.Map")
+	return nil
+}
+
+func (u *mainWindowFuelUpdater) Log(msg string) {
+	u.mw.Log(msg)
+}
+
 // openMatrixBuilder opens (or raises) the matrix builder window. The builder
 // loads its own log files, so it is independent of any open log player.
 func (mw *MainWindow) openMatrixBuilder() {
@@ -1102,10 +1155,34 @@ func (mw *MainWindow) openMatrixBuilder() {
 		mw.wm.Raise(w)
 		return
 	}
-	inner := multiwindow.NewInnerWindow("Matrix builder", matrixbuilder.New(mw.settings.GetMeshRenderer()))
+	mb := matrixbuilder.New(mw.settings.GetMeshRenderer())
+	updater := &mainWindowFuelUpdater{mw: mw}
+	mb.SetFuelUpdater(updater)
+	mb.SetOnUpdateFuelMap(func(m *matrixbuilder.MatrixBuilder) {
+		mw.openFuelAdjuster(m)
+	})
+	inner := multiwindow.NewInnerWindow("Matrix builder", mb)
 	inner.Icon = theme.GridIcon()
 	mw.wm.Add(inner)
 	inner.Resize(fyne.NewSize(1000, 720))
+}
+
+func (mw *MainWindow) openFuelAdjuster(mb *matrixbuilder.MatrixBuilder) {
+	const winTitle = "Adjust BFuelCal.Map"
+	if w := mw.wm.HasWindow(winTitle); w != nil {
+		mw.wm.Raise(w)
+		return
+	}
+	if mb == nil {
+		mb = matrixbuilder.New(mw.settings.GetMeshRenderer())
+	}
+	updater := &mainWindowFuelUpdater{mw: mw}
+	mb.SetFuelUpdater(updater)
+	fa := matrixbuilder.NewFuelAdjusterWidget(mb, updater)
+	inner := multiwindow.NewInnerWindow(winTitle, fa)
+	inner.Icon = theme.DocumentCreateIcon()
+	mw.wm.Add(inner)
+	inner.Resize(fyne.NewSize(1050, 750))
 }
 
 // openRescaler opens (or raises) the map rescaler for a single map. It reads the
