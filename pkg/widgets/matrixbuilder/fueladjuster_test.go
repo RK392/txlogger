@@ -31,16 +31,21 @@ func TestGetDefaultTargetAFR(t *testing.T) {
 	if len(e0) != 18*16 {
 		t.Fatalf("expected len 288, got %d", len(e0))
 	}
-	if e0[0] != 14.7 {
-		t.Errorf("e0[0] = %v, want 14.7", e0[0])
+	if e0[0] != 14.70 {
+		t.Errorf("e0[0] = %v, want 14.70", e0[0])
 	}
-	if e0[17] != 12.0 {
-		t.Errorf("e0[17] = %v, want 12.0", e0[17])
+	// Row 0 (700 rpm) at 1300 load (col 17) is 12.30
+	if e0[17] != 12.30 {
+		t.Errorf("e0[17] = %v, want 12.30", e0[17])
+	}
+	// Row 15 (6200 rpm) at 1300 load (col 17) is 12.00
+	if e0[15*18+17] != 12.00 {
+		t.Errorf("e0[15*18+17] = %v, want 12.00", e0[15*18+17])
 	}
 
 	e85 := GetDefaultTargetAFR(85)
-	expectedStoich := 9.8 // 14.7 * (9.76 / 14.7) = 9.76 -> round 1 decimal = 9.8
-	if math.Abs(e85[0]-expectedStoich) > 0.1 {
+	expectedStoich := 9.76 // 14.70 * (9.76 / 14.70) = 9.76
+	if math.Abs(e85[0]-expectedStoich) > 0.05 {
 		t.Errorf("e85[0] = %v, want ~%v", e85[0], expectedStoich)
 	}
 
@@ -50,6 +55,10 @@ func TestGetDefaultTargetAFR(t *testing.T) {
 	}
 	if lambdas[0] != 1.00 {
 		t.Errorf("lambdas[0] = %v, want 1.00", lambdas[0])
+	}
+	// Row 15 (6200 rpm) at 1300 load is 0.816 (12.00 / 14.70)
+	if lambdas[15*18+17] != 0.816 {
+		t.Errorf("lambdas[15*18+17] = %v, want 0.816", lambdas[15*18+17])
 	}
 }
 
@@ -196,22 +205,26 @@ func TestCalculateFuelAdjustment_UnhitCellsSkipped(t *testing.T) {
 func TestSerializeT7FuelString(t *testing.T) {
 	zData := []float64{1.0, 1.25, 0.85, 1.10}
 	str := SerializeT7FuelString(zData, 2, 2)
-	// Cell (0,0) must start with 20:0:
-	if !strings.HasPrefix(str, "20:0:1:~") {
-		t.Errorf("expected string to start with '20:0:1:~', got %q", str)
+	// In T7Suite, y=0 is the top row (r=1 in txlogger), starting with '20:0:'
+	if !strings.HasPrefix(str, "20:0:0.85:~") {
+		t.Errorf("expected string to start with '20:0:0.85:~', got %q", str)
 	}
-	// Cell (1,0)
-	if !strings.Contains(str, "1:0:1.25:~") {
+	// Cell (1,0) - top right cell
+	if !strings.Contains(str, "1:0:1.10:~") {
 		t.Errorf("missing cell (1,0), got %q", str)
 	}
-	// Cell (0,1)
-	if !strings.Contains(str, "0:1:0.85:~") {
+	// Cell (0,1) - bottom left cell (r=0 in txlogger)
+	if !strings.Contains(str, "0:1:1:~") {
 		t.Errorf("missing cell (0,1), got %q", str)
+	}
+	// Cell (1,1) - bottom right cell
+	if !strings.Contains(str, "1:1:1.25:~") {
+		t.Errorf("missing cell (1,1), got %q", str)
 	}
 }
 
 func TestTargetMapNames_EthanolSwitching(t *testing.T) {
-	fa := &FuelAdjusterWidget{ethanolPct: 0}
+	fa := &FuelAdjusterWidget{ethanolPct: 0, targetMapMode: "Auto"}
 	fuelSym, regSym := fa.targetMapNames()
 	if fuelSym != "BFuelCal.Map" || regSym != "LambdaCal.MaxLoadNormTab" {
 		t.Errorf("at 0%% eth: got %s / %s, want BFuelCal.Map / LambdaCal.MaxLoadNormTab", fuelSym, regSym)
@@ -223,10 +236,86 @@ func TestTargetMapNames_EthanolSwitching(t *testing.T) {
 		t.Errorf("at 50%% eth: got %s / %s, want BFuelCal.Map / LambdaCal.MaxLoadNormTab", fuelSym, regSym)
 	}
 
+	fa.ethanolPct = 55
+	fuelSym, regSym = fa.targetMapNames()
+	if fuelSym != "BFuelCal.StartMap" || regSym != "LambdaCal.MaxLoadE85Tab" {
+		t.Errorf("at 55%% eth: got %s / %s, want BFuelCal.StartMap / LambdaCal.MaxLoadE85Tab", fuelSym, regSym)
+	}
+
 	fa.ethanolPct = 85
 	fuelSym, regSym = fa.targetMapNames()
 	if fuelSym != "BFuelCal.StartMap" || regSym != "LambdaCal.MaxLoadE85Tab" {
 		t.Errorf("at 85%% eth: got %s / %s, want BFuelCal.StartMap / LambdaCal.MaxLoadE85Tab", fuelSym, regSym)
+	}
+
+	// Explicit override to BFuelCal.Map even at 85%
+	fa.targetMapMode = "BFuelCal.Map"
+	fuelSym, regSym = fa.targetMapNames()
+	if fuelSym != "BFuelCal.Map" || regSym != "LambdaCal.MaxLoadNormTab" {
+		t.Errorf("explicit BFuelCal.Map at 85%% eth: got %s / %s, want BFuelCal.Map / LambdaCal.MaxLoadNormTab", fuelSym, regSym)
+	}
+
+	// Explicit override to BFuelCal.StartMap even at 0%
+	fa.targetMapMode = "BFuelCal.StartMap"
+	fa.ethanolPct = 0
+	fuelSym, regSym = fa.targetMapNames()
+	if fuelSym != "BFuelCal.StartMap" || regSym != "LambdaCal.MaxLoadE85Tab" {
+		t.Errorf("explicit BFuelCal.StartMap at 0%% eth: got %s / %s, want BFuelCal.StartMap / LambdaCal.MaxLoadE85Tab", fuelSym, regSym)
+	}
+}
+
+func TestCalculateFuelAdjustment_FlexFuelDeblend(t *testing.T) {
+	// At E = 8.5% (w = 0.10):
+	// BFuelCal.Map = 1.00, BFuelCal.StartMap = 1.20
+	// Current blended fuel = 0.90 * 1.00 + 0.10 * 1.20 = 1.02
+	// Target Lambda = 0.85, Learned Lambda = 0.8925 (+5% lean -> correctionRatio = 1.05)
+	// Target blended fuel = 1.02 * 1.05 = 1.071
+	// BFuelCal.Map_new = (1.071 - 0.10 * 1.20) / 0.90 = (1.071 - 0.120) / 0.90 = 0.951 / 0.90 = 1.05667 -> 1.06
+	cfg := FuelAdjustmentConfig{
+		ZSeries:      "Lambda.External",
+		TargetSymbol: "BFuelCal.Map",
+		LearnedZ:     []float64{0.8925},
+		Counts:       []int{20},
+		CurrentFuel:  []float64{1.00},
+		OtherFuel:    []float64{1.20},
+		EthanolPct:   8.5, // w = 0.10
+		TargetLambda: []float64{0.85},
+		ClosedLoop:   []bool{false}, // open-loop cell
+		Smoothing:    1.0,
+	}
+
+	res := CalculateFuelAdjustment(cfg)
+	if res.UpdatedCells != 1 {
+		t.Fatalf("expected 1 cell updated, got %d", res.UpdatedCells)
+	}
+	if res.NewFuel[0] != 1.06 {
+		t.Errorf("expected de-blended fuel = 1.06, got %v", res.NewFuel[0])
+	}
+
+	// Test tuning BFuelCal.StartMap at E = 76.5% (w = 0.90):
+	// Current BFuelCal.Map (OtherFuel) = 1.00, BFuelCal.StartMap (CurrentFuel) = 1.30
+	// Current blended fuel = (1 - 0.90)*1.00 + 0.90*1.30 = 0.10 + 1.17 = 1.27
+	// Target Lambda = 0.85, Learned Lambda = 0.8925 (+5% lean -> correctionRatio = 1.05)
+	// Target blended fuel = 1.27 * 1.05 = 1.3335
+	// BFuelCal.StartMap_new = (1.3335 - 0.10 * 1.00) / 0.90 = 1.2335 / 0.90 = 1.3705 -> 1.37
+	cfgStartMap := FuelAdjustmentConfig{
+		ZSeries:      "Lambda.External",
+		TargetSymbol: "BFuelCal.StartMap",
+		LearnedZ:     []float64{0.8925},
+		Counts:       []int{20},
+		CurrentFuel:  []float64{1.30},
+		OtherFuel:    []float64{1.00},
+		EthanolPct:   76.5, // w = 0.90
+		TargetLambda: []float64{0.85},
+		ClosedLoop:   []bool{false},
+		Smoothing:    1.0,
+	}
+	resStartMap := CalculateFuelAdjustment(cfgStartMap)
+	if resStartMap.UpdatedCells != 1 {
+		t.Fatalf("expected 1 cell updated, got %d", resStartMap.UpdatedCells)
+	}
+	if resStartMap.NewFuel[0] != 1.37 {
+		t.Errorf("expected de-blended StartMap fuel = 1.37, got %v", resStartMap.NewFuel[0])
 	}
 }
 

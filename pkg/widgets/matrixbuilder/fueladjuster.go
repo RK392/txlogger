@@ -30,40 +30,40 @@ var (
 )
 
 // Hardcoded default base Target AFR table (18 cols x 16 rows in AFR units, petrol base 14.70).
-// Columns 0..10 are 14.7 (stoichiometric); columns 11..17 taper richer under boost.
+// Row 0 is 700 RPM, Row 15 is 6200 RPM, aligned with DefaultRpmYSP and T7Suite.
 var HardcodedBaseTargetAFR = []float64{
 	// Row 0 (700 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 13.2, 13.0, 12.8, 12.6, 12.4, 12.2, 12.0,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 13.40, 13.20, 13.00, 12.90, 12.70, 12.50, 12.30,
 	// Row 1 (880 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 13.1, 12.9, 12.7, 12.5, 12.3, 12.1, 11.9,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 13.40, 13.20, 13.00, 12.80, 12.60, 12.40, 12.20,
 	// Row 2 (1260 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 13.0, 12.8, 12.6, 12.4, 12.2, 12.0, 11.8,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 13.30, 13.10, 12.90, 12.70, 12.50, 12.30, 12.10,
 	// Row 3 (1640 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 12.9, 12.7, 12.5, 12.3, 12.1, 11.9, 11.7,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 13.20, 13.00, 12.80, 12.60, 12.40, 12.20, 12.00,
 	// Row 4 (2020 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 12.8, 12.6, 12.4, 12.2, 12.0, 11.8, 11.6,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 13.10, 12.90, 12.70, 12.50, 12.30, 12.10, 11.90,
 	// Row 5 (2400 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 12.7, 12.5, 12.3, 12.1, 11.9, 11.7, 11.5,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 13.00, 12.80, 12.60, 12.40, 12.20, 12.00, 11.80,
 	// Row 6 (2780 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 12.6, 12.4, 12.2, 12.0, 11.9, 11.7, 11.5,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 12.90, 12.70, 12.50, 12.30, 12.10, 11.90, 11.70,
 	// Row 7 (3160 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 12.7, 12.5, 12.3, 12.1, 11.9, 11.7, 11.6,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 12.80, 12.60, 12.40, 12.20, 12.00, 11.90, 11.70,
 	// Row 8 (3540 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 12.8, 12.6, 12.4, 12.2, 12.0, 11.9, 11.7,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 12.70, 12.50, 12.30, 12.10, 11.90, 11.70, 11.60,
 	// Row 9 (3920 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 12.9, 12.7, 12.5, 12.3, 12.1, 11.9, 11.7,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 12.60, 12.40, 12.20, 12.00, 11.90, 11.70, 11.50,
 	// Row 10 (4300 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 13.0, 12.8, 12.6, 12.4, 12.2, 12.0, 11.8,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 12.70, 12.50, 12.30, 12.10, 11.90, 11.70, 11.50,
 	// Row 11 (4680 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 13.1, 12.9, 12.7, 12.5, 12.3, 12.1, 11.9,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 12.80, 12.60, 12.40, 12.20, 12.00, 11.80, 11.60,
 	// Row 12 (5060 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 13.2, 13.0, 12.8, 12.6, 12.4, 12.2, 12.0,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 12.90, 12.70, 12.50, 12.30, 12.10, 11.90, 11.70,
 	// Row 13 (5440 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 13.3, 13.1, 12.9, 12.7, 12.5, 12.3, 12.1,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 13.00, 12.80, 12.60, 12.40, 12.20, 12.00, 11.80,
 	// Row 14 (5820 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 13.4, 13.2, 13.0, 12.8, 12.6, 12.4, 12.2,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 13.10, 12.90, 12.70, 12.50, 12.30, 12.10, 11.90,
 	// Row 15 (6200 rpm)
-	14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 14.7, 13.4, 13.2, 13.0, 12.9, 12.7, 12.5, 12.3,
+	14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 14.70, 13.20, 13.00, 12.80, 12.60, 12.40, 12.20, 12.00,
 }
 
 // EthanolStoichAFR returns the stoichiometric air-fuel ratio for a given ethanol percentage (0..85).
@@ -78,22 +78,22 @@ func EthanolStoichAFR(ethanolPct float64) float64 {
 	return 14.70 - (ethanolPct/85.0)*(14.70-9.76)
 }
 
-// GetDefaultTargetAFR returns a copy of the hardcoded Target AFR map scaled for the given ethanol percentage.
+// GetDefaultTargetAFR returns a copy of the hardcoded Target AFR map scaled for the given ethanol percentage (2 decimal points).
 func GetDefaultTargetAFR(ethanolPct float64) []float64 {
 	stoich := EthanolStoichAFR(ethanolPct)
 	ratio := stoich / 14.70
 	out := make([]float64, len(HardcodedBaseTargetAFR))
 	for i, v := range HardcodedBaseTargetAFR {
-		out[i] = math.Round(v*ratio*10) / 10
+		out[i] = math.Round(v*ratio*100) / 100
 	}
 	return out
 }
 
-// GetDefaultTargetLambda returns the hardcoded baseline in Lambda units (AFR / 14.70).
+// GetDefaultTargetLambda returns the hardcoded baseline in Lambda units (AFR / 14.70) (3 decimal points).
 func GetDefaultTargetLambda() []float64 {
 	out := make([]float64, len(HardcodedBaseTargetAFR))
 	for i, v := range HardcodedBaseTargetAFR {
-		out[i] = math.Round((v/14.70)*100) / 100
+		out[i] = math.Round((v/14.70)*1000) / 1000
 	}
 	return out
 }
@@ -139,9 +139,12 @@ func GetClosedLoopMask(xData, yData, limitRpm, limitMaxLoad []float64) []bool {
 // FuelAdjustmentConfig holds all inputs needed to calculate the updated fuel map.
 type FuelAdjustmentConfig struct {
 	ZSeries      string    // "Lambda.LambdaInt" or "Lambda.External"
+	TargetSymbol string    // "BFuelCal.Map" or "BFuelCal.StartMap" (optional, defaults by EthanolPct)
 	LearnedZ     []float64 // MatrixBuilder learned values (same length as CurrentFuel)
 	Counts       []int     // MatrixBuilder sample counts per cell
 	CurrentFuel  []float64 // Base fuel map values (BFuelCal.Map or BFuelCal.StartMap)
+	OtherFuel    []float64 // Complementary fuel map (StartMap when tuning Map, or Map when tuning StartMap)
+	EthanolPct   float64   // Flex fuel ethanol percentage (0..85)
 	TargetLambda []float64 // Target lambda values (per cell)
 	ClosedLoop   []bool    // true = closed loop, false = open loop
 	Smoothing    float64   // 0.0 .. 1.0 (e.g. 0.5 for 50%)
@@ -173,6 +176,7 @@ func IsOpenLoopSeries(s string) bool {
 // CalculateFuelAdjustment calculates the new fuel map:
 // - If Lambda.LambdaInt is evaluated: ONLY closed loop cells are updated.
 // - If Lambda.External is evaluated: ONLY open loop cells are updated.
+// - Takes into account the Biopower flexfuel blend ((1-w)*Map + w*StartMap) to de-blend corrections.
 func CalculateFuelAdjustment(cfg FuelAdjustmentConfig) FuelAdjustmentResult {
 	n := len(cfg.CurrentFuel)
 	res := FuelAdjustmentResult{
@@ -243,7 +247,49 @@ func CalculateFuelAdjustment(cfg FuelAdjustmentConfig) FuelAdjustmentResult {
 			smoothing = 1
 		}
 		smoothedRatio := 1.0 + (correctionRatio-1.0)*smoothing
-		newFuel := math.Round(curFuel*smoothedRatio*100) / 100
+
+		// Biopower Flexfuel blend weighting:
+		// w = ethanolPct / 85.0
+		// In Trionic 7, injected fuel is a blend: (1 - w)*BFuelCal.Map + w*BFuelCal.StartMap
+		w := cfg.EthanolPct / 85.0
+		if w < 0 {
+			w = 0
+		} else if w > 1 {
+			w = 1
+		}
+
+		otherVal := curFuel
+		if i < len(cfg.OtherFuel) && cfg.OtherFuel[i] > 0 {
+			otherVal = cfg.OtherFuel[i]
+		}
+
+		isStartMap := (cfg.TargetSymbol == "BFuelCal.StartMap") || (cfg.TargetSymbol == "" && cfg.EthanolPct >= 55.0)
+
+		var newFuel float64
+		if isStartMap {
+			// Tuning BFuelCal.StartMap (E85 table). Weight on StartMap is w.
+			if w < 0.05 {
+				newFuel = curFuel * smoothedRatio
+			} else {
+				currentBlended := (1.0-w)*otherVal + w*curFuel
+				targetBlended := currentBlended * smoothedRatio
+				newFuel = (targetBlended - (1.0-w)*otherVal) / w
+			}
+		} else {
+			// Tuning BFuelCal.Map (petrol table). Weight on Map is (1 - w).
+			if (1.0 - w) < 0.05 {
+				newFuel = curFuel * smoothedRatio
+			} else {
+				currentBlended := (1.0-w)*curFuel + w*otherVal
+				targetBlended := currentBlended * smoothedRatio
+				newFuel = (targetBlended - w*otherVal) / (1.0 - w)
+			}
+		}
+
+		if newFuel < 0.10 {
+			newFuel = 0.10
+		}
+		newFuel = math.Round(newFuel*100) / 100
 
 		delta := newFuel - curFuel
 		res.NewFuel[i] = newFuel
@@ -278,10 +324,13 @@ func CalculateFuelAdjustment(cfg FuelAdjustmentConfig) FuelAdjustmentResult {
 
 // SerializeT7FuelString serializes map data into the T7Suite clipboard string format:
 // "20:0:val:~1:0:val:~...x:y:val:~"
-// Preserves the historical '20' prefix on the first coordinate for T7Suite compatibility.
+// In T7Suite, Y-axis coordinates start at 0 for the highest RPM (6200) down to rows-1 for lowest RPM (700).
+// In txlogger, row 0 is 700 RPM and row rows-1 is 6200 RPM.
+// Therefore, T7Suite y = (rows - 1) - r.
 func SerializeT7FuelString(zData []float64, cols, rows int) string {
 	tokens := make([]string, 0, len(zData))
-	for r := 0; r < rows; r++ {
+	for y := 0; y < rows; y++ {
+		r := (rows - 1) - y // map T7Suite y (top=0) to txlogger row r (bottom=0)
 		for c := 0; c < cols; c++ {
 			idx := r*cols + c
 			if idx >= len(zData) {
@@ -289,7 +338,7 @@ func SerializeT7FuelString(zData []float64, cols, rows int) string {
 			}
 			val := zData[idx]
 			outX := c
-			if r == 0 && c == 0 {
+			if y == 0 && c == 0 {
 				outX = 20
 			}
 			var valStr string
@@ -298,7 +347,7 @@ func SerializeT7FuelString(zData []float64, cols, rows int) string {
 			} else {
 				valStr = strconv.FormatFloat(val, 'f', 2, 64)
 			}
-			tokens = append(tokens, fmt.Sprintf("%d:%d:%s", outX, r, valStr))
+			tokens = append(tokens, fmt.Sprintf("%d:%d:%s", outX, y, valStr))
 		}
 	}
 	return strings.Join(tokens, ":~") + ":~"
@@ -318,10 +367,12 @@ type FuelAdjusterWidget struct {
 	mb      *MatrixBuilder
 	updater FuelUpdater
 
-	ethanolPct float64
-	smoothing  float64
-	isLambda   bool // false = Target AFR mode, true = Target Lambda mode
+	ethanolPct    float64
+	smoothing     float64
+	isLambda      bool   // false = Target AFR mode, true = Target Lambda mode
+	targetMapMode string // "Auto", "BFuelCal.Map", "BFuelCal.StartMap"
 
+	targetAFR    []float64 // base target AFR values (petrol 14.70 base)
 	targetLambda []float64 // normalized target lambda values
 	displayedZ   []float64 // values currently shown in targetViewer (AFR or Lambda)
 	newFuel      []float64
@@ -329,18 +380,20 @@ type FuelAdjusterWidget struct {
 	result       FuelAdjustmentResult
 
 	// UI controls
-	modeSelect   *widget.Select
-	targetMapLbl *widget.Label
-	ethSlider    *widget.Slider
-	ethLabel     *widget.Label
-	smoothSlider *widget.Slider
-	smoothLabel  *widget.Label
-	ruleBadge    *widget.Label
-	statsLabel   *widget.Label
-	statusLabel  *widget.Label
-	applyBtn     *widget.Button
+	modeSelect      *widget.Select
+	targetMapSelect *widget.Select
+	targetMapLbl    *widget.Label
+	ethSlider       *widget.Slider
+	ethLabel        *widget.Label
+	smoothSlider    *widget.Slider
+	smoothLabel     *widget.Label
+	ruleBadge       *widget.Label
+	warningBadge    *widget.Label
+	statsLabel      *widget.Label
+	statusLabel     *widget.Label
+	applyBtn        *widget.Button
 
-	targetViewer *mapviewer.MapViewer
+	targetViewer  *mapviewer.MapViewer
 	previewViewer *mapviewer.MapViewer
 	diffViewer    *mapviewer.MapViewer
 	tabContainer  *container.AppTabs
@@ -351,12 +404,14 @@ type FuelAdjusterWidget struct {
 // NewFuelAdjusterWidget creates a new fuel adjuster interface.
 func NewFuelAdjusterWidget(mb *MatrixBuilder, updater FuelUpdater) *FuelAdjusterWidget {
 	fa := &FuelAdjusterWidget{
-		mb:           mb,
-		updater:      updater,
-		ethanolPct:   0,
-		smoothing:    0.50,
-		isLambda:     false,
-		targetLambda: GetDefaultTargetLambda(),
+		mb:            mb,
+		updater:       updater,
+		ethanolPct:    0,
+		smoothing:     0.50,
+		isLambda:      false,
+		targetMapMode: "Auto",
+		targetAFR:     GetDefaultTargetAFR(0),
+		targetLambda:  GetDefaultTargetLambda(),
 	}
 	fa.ExtendBaseWidget(fa)
 	fa.buildUI()
@@ -369,7 +424,14 @@ func (fa *FuelAdjusterWidget) CreateRenderer() fyne.WidgetRenderer {
 }
 
 func (fa *FuelAdjusterWidget) targetMapNames() (fuelSymbol, regionSymbol string) {
-	if fa.ethanolPct >= 85 {
+	if fa.targetMapMode == "BFuelCal.StartMap" {
+		return "BFuelCal.StartMap", "LambdaCal.MaxLoadE85Tab"
+	}
+	if fa.targetMapMode == "BFuelCal.Map" {
+		return "BFuelCal.Map", "LambdaCal.MaxLoadNormTab"
+	}
+	// "Auto" mode: switch to BFuelCal.StartMap at 55% or higher
+	if fa.ethanolPct >= 55.0 {
 		return "BFuelCal.StartMap", "LambdaCal.MaxLoadE85Tab"
 	}
 	return "BFuelCal.Map", "LambdaCal.MaxLoadNormTab"
@@ -384,18 +446,37 @@ func (fa *FuelAdjusterWidget) buildUI() {
 	})
 	fa.modeSelect.Selected = "Target AFR"
 
+	// Target Map dropdown: Auto vs explicit BFuelCal.Map vs BFuelCal.StartMap
+	fa.targetMapSelect = widget.NewSelect([]string{"Auto", "BFuelCal.Map (Petrol)", "BFuelCal.StartMap (E85)"}, func(s string) {
+		switch s {
+		case "BFuelCal.Map (Petrol)":
+			fa.targetMapMode = "BFuelCal.Map"
+		case "BFuelCal.StartMap (E85)":
+			fa.targetMapMode = "BFuelCal.StartMap"
+		default:
+			fa.targetMapMode = "Auto"
+		}
+		fuelSymbol, _ := fa.targetMapNames()
+		fa.targetMapLbl.SetText("Target: " + fuelSymbol)
+		if fa.applyBtn != nil {
+			fa.applyBtn.SetText("Apply to " + fuelSymbol)
+		}
+		fa.recalculate()
+	})
+	fa.targetMapSelect.Selected = "Auto"
+
 	// Target Map label (e.g. BFuelCal.Map vs BFuelCal.StartMap)
 	fa.targetMapLbl = widget.NewLabelWithStyle("Target: BFuelCal.Map", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
 
-	// Ethanol slider (0..85%)
-	fa.ethLabel = widget.NewLabel("0% (Stoich: 14.70)")
+	// Ethanol slider (0..85%) with 0.1% precision
+	fa.ethLabel = widget.NewLabel("0.0% (Stoich: 14.70)")
 	fa.ethSlider = widget.NewSlider(0, 85)
-	fa.ethSlider.Step = 1
+	fa.ethSlider.Step = 0.1
 	fa.ethSlider.SetValue(fa.ethanolPct)
 	fa.ethSlider.OnChanged = func(val float64) {
-		fa.ethanolPct = val
-		stoich := EthanolStoichAFR(val)
-		fa.ethLabel.SetText(fmt.Sprintf("%d%% (Stoich: %.2f)", int(val), stoich))
+		fa.ethanolPct = math.Round(val*10) / 10
+		stoich := EthanolStoichAFR(fa.ethanolPct)
+		fa.ethLabel.SetText(fmt.Sprintf("%.1f%% (Stoich: %.2f)", fa.ethanolPct, stoich))
 
 		fuelSymbol, _ := fa.targetMapNames()
 		fa.targetMapLbl.SetText("Target: " + fuelSymbol)
@@ -422,10 +503,15 @@ func (fa *FuelAdjusterWidget) buildUI() {
 	fa.ruleBadge = widget.NewLabel("")
 	fa.ruleBadge.TextStyle = fyne.TextStyle{Bold: true}
 
+	// Mid-blend warning badge
+	fa.warningBadge = widget.NewLabel("")
+	fa.warningBadge.TextStyle = fyne.TextStyle{Bold: true}
+
 	fa.statsLabel = widget.NewLabel("")
 	fa.statusLabel = widget.NewLabel("")
 
 	resetAFRBtn := widget.NewButtonWithIcon("Reset Target", theme.ViewRefreshIcon(), func() {
+		fa.targetAFR = GetDefaultTargetAFR(0)
 		fa.targetLambda = GetDefaultTargetLambda()
 		fa.updateTargetViewerDisplay()
 		fa.recalculate()
@@ -441,13 +527,16 @@ func (fa *FuelAdjusterWidget) buildUI() {
 			layout.NewSpacer(),
 			fa.ruleBadge,
 		),
-		container.NewGridWithColumns(3,
+		container.NewGridWithColumns(4,
 			container.NewBorder(nil, nil, widget.NewLabel("Mode:"), nil, fa.modeSelect),
+			container.NewBorder(nil, nil, widget.NewLabel("Target:"), nil, fa.targetMapSelect),
 			container.NewBorder(nil, nil, widget.NewLabel("Ethanol:"), fa.ethLabel, fa.ethSlider),
 			container.NewBorder(nil, nil, widget.NewLabel("Smoothing:"), fa.smoothLabel, fa.smoothSlider),
 		),
 		container.NewHBox(
 			resetAFRBtn,
+			layout.NewSpacer(),
+			fa.warningBadge,
 			layout.NewSpacer(),
 			fa.statsLabel,
 		),
@@ -467,19 +556,21 @@ func (fa *FuelAdjusterWidget) buildUI() {
 		RegionBorder:   initialMask,
 		XPrecision:     0,
 		YPrecision:     0,
-		ZPrecision:     1,
+		ZPrecision:     2,
 		XLabel:         "Airmass (mg/c)",
 		YLabel:         "RPM",
 		ZLabel:         "Target AFR",
 		Editable:       true,
 		ColorblindMode: colors.ModeNormal,
 		OnUpdateCell: func(idx int, data []float64) {
-			if idx >= 0 && idx < len(fa.targetLambda) {
+			if idx >= 0 && idx < len(fa.targetAFR) {
 				stoich := EthanolStoichAFR(fa.ethanolPct)
 				val := data[idx]
 				if fa.isLambda {
 					fa.targetLambda[idx] = val
+					fa.targetAFR[idx] = val * 14.70
 				} else {
+					fa.targetAFR[idx] = val / (stoich / 14.70)
 					fa.targetLambda[idx] = val / stoich
 				}
 				fa.recalculate()
@@ -558,16 +649,18 @@ func (fa *FuelAdjusterWidget) updateTargetViewerDisplay() {
 		return
 	}
 	stoich := EthanolStoichAFR(fa.ethanolPct)
-	displayData := make([]float64, len(fa.targetLambda))
+	ratio := stoich / 14.70
+	displayData := make([]float64, len(fa.targetAFR))
 	if fa.isLambda {
-		fa.targetViewer.SetZPrecision(2)
-		for i, lam := range fa.targetLambda {
-			displayData[i] = math.Round(lam*100) / 100
+		fa.targetViewer.SetZPrecision(3)
+		for i, afr := range fa.targetAFR {
+			lam := afr / 14.70
+			displayData[i] = math.Round(lam*1000) / 1000
 		}
 	} else {
-		fa.targetViewer.SetZPrecision(1)
-		for i, lam := range fa.targetLambda {
-			displayData[i] = math.Round(lam*stoich*10) / 10
+		fa.targetViewer.SetZPrecision(2)
+		for i, afr := range fa.targetAFR {
+			displayData[i] = math.Round(afr*ratio*100) / 100
 		}
 	}
 	_ = fa.targetViewer.SetZData(displayData)
@@ -617,6 +710,17 @@ func (fa *FuelAdjusterWidget) recalculate() {
 	}
 
 	fuelSymbol, regionSymbol := fa.targetMapNames()
+	otherSymbol := "BFuelCal.StartMap"
+	if fuelSymbol == "BFuelCal.StartMap" {
+		otherSymbol = "BFuelCal.Map"
+	}
+
+	// Update warning badge for mid-blends
+	if fa.ethanolPct >= 20.0 && fa.ethanolPct <= 65.0 {
+		fa.warningBadge.SetText("⚠ Warning: Mid-blend (20-65% E) - high cross-table sensitivity! Tune near E0 or E85 recommended.")
+	} else {
+		fa.warningBadge.SetText("")
+	}
 
 	// Update rule badge
 	if IsClosedLoopSeries(zSeries) {
@@ -628,6 +732,7 @@ func (fa *FuelAdjusterWidget) recalculate() {
 	}
 
 	xData, yData, baseZ := fa.getBaseFuelMap(fuelSymbol)
+	_, _, otherZ := fa.getBaseFuelMap(otherSymbol)
 	mask := fa.getClosedLoopMask(regionSymbol, xData, yData)
 
 	learnedZ := fa.mb.zData
@@ -639,11 +744,22 @@ func (fa *FuelAdjusterWidget) recalculate() {
 		counts = make([]int, len(baseZ))
 	}
 
+	// Keep targetLambda synchronized with targetAFR
+	if fa.targetLambda == nil || len(fa.targetLambda) != len(fa.targetAFR) {
+		fa.targetLambda = make([]float64, len(fa.targetAFR))
+	}
+	for i, afr := range fa.targetAFR {
+		fa.targetLambda[i] = afr / 14.70
+	}
+
 	cfg := FuelAdjustmentConfig{
 		ZSeries:      zSeries,
+		TargetSymbol: fuelSymbol,
 		LearnedZ:     learnedZ,
 		Counts:       counts,
 		CurrentFuel:  baseZ,
+		OtherFuel:    otherZ,
+		EthanolPct:   fa.ethanolPct,
 		TargetLambda: fa.targetLambda,
 		ClosedLoop:   mask,
 		Smoothing:    fa.smoothing,
